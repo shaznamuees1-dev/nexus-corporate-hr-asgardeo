@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nexus HR - Employee Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .navbar { background: #333; color: white; padding: 15px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .profile-card { border: 1px solid #ddd; padding: 20px; border-radius: 5px; margin-top: 20px; max-width: 500px; }
+        .logout-btn { background: #ff4d4d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>Nexus HR Network</h2>
+        <form th:action="@{/logout}" method="post">
+            <button class="logout-btn" type="submit">Sign Out</button>
+        </form>
+    </div>
+
+    <div class="profile-card">
+        <h3>Active Employee Session</h3>
+        <p><strong>Employee Name:</strong> <span th:text="${name}">John Doe</span></p>
+        <p><strong>Corporate Email:</strong> <span th:text="${email}">john@nexus.com</span></p>
+        <p><strong>Security Clearance Level:</strong> Tier-1 Enterprise Access</p>
+        <hr/>
+        <p style="color: green;">✔ Successfully Authenticated via WSO2 Asgardeo Identity Cloud.</p>
+    </div>
+</body>
+</html>   
