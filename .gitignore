@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Expose properties file configuration to prevent secret leaks
+src/main/resources/application.properties
