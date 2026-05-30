@@ -15,9 +15,25 @@ public class HomeController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(@AuthenticationPrincipal OidcUser user, Model model) {
-        model.addAttribute("name", user.getFullName());
+public String dashboard(@AuthenticationPrincipal OidcUser user, Model model) {
+    if (user != null) {
+        String name = user.getFullName();
+         
+        if (name == null || name.isBlank()) {
+            name = user.getClaimAsString("given_name");
+        }
+        
+        if (name == null || name.isBlank()) {
+            name = user.getClaimAsString("username");
+        }
+        
+        if (name == null || name.isBlank()) {
+            name = user.getName(); 
+        }
+
+        model.addAttribute("name", name);
         model.addAttribute("email", user.getEmail());
-        return "dashboard";
     }
+    return "dashboard";
+}
 }
