@@ -2,31 +2,56 @@ package com.example.nexus_corporate_hr_asgardeo;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // Enables @PreAuthorize
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/error", "/webjars/**").permitAll()
+                .requestMatchers("/", "/login/**", "/error").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .defaultSuccessUrl("/dashboard", true)
-            )
-            .logout(logout -> logout
-                .logoutSuccessUrl("/")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .deleteCookies("JSESSIONID")
+                .userInfoEndpoint(userInfo -> userInfo
+                    .oidcUserService(this.oidcUserService())
+                )
             );
-
         return http.build();
+    }
+
+    private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+        final OidcUserService delegate = new OidcUserService();
+        return (userRequest) -> {
+            OidcUser oidcUser = delegate.loadUser(userRequest);
+            // Asgardeo sends groups as a List<String>
+            List<String> groups = oidcUser.getAttribute("groups");
+            
+            Collection<GrantedAuthority> authorities = new ArrayList<>();
+            if (groups != null) {
+                for (String group : groups) {
+                    authorities.add(new SimpleGrantedAuthority(group));
+                }
+            }
+            return new DefaultOidcUser(authorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
+        };
     }
 }
