@@ -1,0 +1,6 @@
+# Use these keys as environment variables to run the app locally.
+# DO NOT COMMIT YOUR REAL CREDENTIALS TO GIT
+
+ASGARDEO_CLIENT_ID=your_id_here
+ASGARDEO_CLIENT_SECRET=your_secret_here
+ASGARDEO_ISSUER_URI=https://api.asgardeo.io/t/{your-org-name}/oauth2/token
