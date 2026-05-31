@@ -20,7 +20,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Enables @PreAuthorize
+@EnableMethodSecurity  
 public class SecurityConfig {
 
     @Bean
@@ -42,13 +42,13 @@ public class SecurityConfig {
         final OidcUserService delegate = new OidcUserService();
         return (userRequest) -> {
             OidcUser oidcUser = delegate.loadUser(userRequest);
-            // Asgardeo sends groups as a List<String>
+            
             List<String> groups = oidcUser.getAttribute("groups");
             
             Collection<GrantedAuthority> authorities = new ArrayList<>();
             if (groups != null) {
                 for (String group : groups) {
-                    authorities.add(new SimpleGrantedAuthority(group));
+                    authorities.add(new SimpleGrantedAuthority("ROLE_" + group.toUpperCase()));
                 }
             }
             return new DefaultOidcUser(authorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
